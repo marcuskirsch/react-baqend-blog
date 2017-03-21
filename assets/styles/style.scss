@@ -1,0 +1,28 @@
+@import url('https://fonts.googleapis.com/css?family=Varela+Round');
+@import './variables';
+@import './../../node_modules/bootstrap-sass/assets/stylesheets/_bootstrap.scss';
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+}
+
+// Buttons
+//---------------------------------------
+.btn {
+  margin: 0 $padding-base-vertical;
+}
+
+// Lists
+//---------------------------------------
+
+.list {
+
+}
+
+.list-item {
+  border-bottom: 1px solid $gray-lighter;
+  padding: $padding-large-horizontal 0;
+}
+
