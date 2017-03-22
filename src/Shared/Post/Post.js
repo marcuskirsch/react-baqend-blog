@@ -5,6 +5,18 @@ const PostService = {
   posts: [],
 
   getPosts: function() {
+    return db.ready(() => {
+      return db.Post.find()
+        .equal('active', true)
+        .resultList()
+        .then( result => {
+          this.posts = result;
+          return this.posts;
+        });
+    });
+  },
+
+  getProtectedPosts: function() {
     if (this.posts.length) {
       return Promise.resolve(this.posts);
     } else {
@@ -31,13 +43,24 @@ const PostService = {
     return db.ready(() => {
         return db.Post.find()
           .equal('slug', slug)
-          .singleResult();
+          .singleResult()
+          .then(result => {
+            if (result.images === null) {
+              result.images = new db.List();
+              return result;
+            } else {
+              return result;
+            }
+          });
       });
   },
 
   createPost: function(post){
-    var post = new db.Post(post);
-    return post.insert();
+    var tempPost = new db.Post(post);
+    tempPost.slug = new Date().getTime();
+    this.posts.push(tempPost);
+
+    return tempPost.insert({refresh: true});
   },
 
   updatePost: function(post){
@@ -47,7 +70,12 @@ const PostService = {
 
   deletePost: function(post) {
     return db.ready(() => {
-        return post.delete();
+      return post.delete().then(() => {
+        const index = this.posts.indexOf(post);
+        this.posts.splice(index, 1);
+
+        return this.posts;
+      });
     });
   }
 };

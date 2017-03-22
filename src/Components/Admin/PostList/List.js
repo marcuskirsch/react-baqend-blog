@@ -16,7 +16,7 @@ class PostListComponent extends Component {
    *
    */
   getPosts() {
-    PostService.getPosts().then(res => {
+    PostService.getProtectedPosts().then(res => {
       let posts = res.map((post, index) => {
         return <PostListItemComponent key={index} post={post} deletePost={this.deletePost}></PostListItemComponent>;
       });
@@ -29,15 +29,9 @@ class PostListComponent extends Component {
    *
    */
   deletePost = (post) => {
-    const index = this.state.posts.indexOf(post);
-
     PostService.deletePost(post)
       .then(res => {
-      this.state.posts.splice(index, 1)
-
-        this.setState({
-          posts: this.state.posts
-        });
+        return this.getPosts();
       })
       .catch(err => {
         this.setState({error: err});
@@ -47,7 +41,7 @@ class PostListComponent extends Component {
   /**
    *
    */
-  componentWillMount() {
+  componentDidMount() {
     this.getPosts();
   }
 

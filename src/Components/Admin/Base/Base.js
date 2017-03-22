@@ -30,7 +30,10 @@ class BaseComponent extends Component {
       <div>
         <div className="navbar navbar-default">
           <div className="container">
-              <div className="navbar-header navbar-brand"><Link to="/adminpanel">moni's blog</Link></div>
+              <div className="navbar-header navbar-brand">
+                <Link to="/adminpanel">
+                  <img width="50px" src={require('../../../../assets/images/logo.png')}/>
+                </Link></div>
               <div className="nav navbar-nav navbar-right">
                 <div className="navbar-form navbar-left">
                   <AuthButton/>

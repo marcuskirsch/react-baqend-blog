@@ -14,10 +14,10 @@ class PostListItemComponent extends Component {
     return (
 
         <div className="row list-item">
-            <div className="col-md-8">
+            <div className="col-xs-8">
               {this.props.post.title}
             </div>
-            <div className="col-md-4">
+            <div className="col-xs-4">
               <button  onClick={this.deletePost} type="button" className="btn btn-default pull-right" aria-label="delete">
                 <span className="glyphicon glyphicon-trash" aria-hidden="true"></span>
               </button>

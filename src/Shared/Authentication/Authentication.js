@@ -2,15 +2,18 @@ import { db } from 'baqend';
 
 const AuthenticationService = {
 
- isAuthenticated: localStorage.getItem('isAuthenticated') === 'true' ? true : false,
+  isAuthenticated: localStorage.getItem('isAuthenticated') === 'true' ? true : false,
 
+  /**
+   *
+   */
   authenticate: function(params) {
-     return db.ready(() => {
-        return db.User.login(params.username, params.password).then(() => {
-          this.isAuthenticated = true;
-          localStorage.setItem('isAuthenticated', true);
-        });
+    return db.ready(() => {
+      return db.User.login(params.username, params.password).then(() => {
+        this.isAuthenticated = true;
+        localStorage.setItem('isAuthenticated', true);
       });
+    });
   },
 
   /**

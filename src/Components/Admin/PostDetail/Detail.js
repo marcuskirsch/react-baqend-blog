@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
+import { db } from 'baqend';
 
+import ImageListItem from './ImageListItem';
+import ImageUploader from './ImageUploader';
 import PostService from '../../../Shared/Post/Post';
 import FlashMessageComponent from '../../../Shared/FlashMessage/FlashMessage';
 
@@ -12,21 +15,7 @@ class PostDetailComponent extends Component {
     success: false,
     message: ''
   };
-
-  /**
-   *
-   */
-  handleChange = (event) => {
-    let changes = {};
-
-    Object.assign(this.state.form, {
-      [event.target.name]: event.target.value
-    });
-
-    this.setState({
-      form: this.state.form
-    });
-  }
+  post = {};
 
   /**
    *
@@ -71,15 +60,15 @@ class PostDetailComponent extends Component {
           })
         });
     } else {
-      console.log(this.post);
       PostService.createPost(this.post)
         .then(res => {
+          this.props.history.push('/adminpanel/posts/' + res.slug);
           this.post = res;
 
           this.setState({
             post: res,
             success: true,
-            message: 'create sucess'
+            message: 'update sucess'
           })
         })
         .catch(err => {
@@ -96,13 +85,108 @@ class PostDetailComponent extends Component {
   /**
    *
    */
-  componentWillMount() {
+  handleChange = (event) => {
+    Object.assign(this.state.form, {
+      [event.target.name]: event.target.type === 'checkbox' ? event.target.checked : event.target.value
+    });
+
+    this.setState({
+      form: this.state.form
+    });
+  }
+
+  handleUploadImage = (event) => {
+    const file = new db.File({
+      data: event.target.files[0],
+      parent: '/www/images/posts/' + this.post.key
+    })
+
+    file
+      .upload()
+      .then((file) => {
+        //upload succeed successfully
+        this.post.images.push(file)
+
+        return this.post.save()
+      })
+      .then((post) => {
+        this.setState({
+          post: post
+        })
+      })
+  }
+
+  handleUploadPreview = (event) => {
+    const file = new db.File({
+      data: event.target.files[0],
+      parent: '/www/images/posts/' + this.post.key
+    })
+
+    file
+      .upload()
+      .then((file) => {
+        //upload succeed successfully
+        this.post.preview_image = file;
+        return this.post.save()
+      })
+      .then((post) => {
+        this.setState({
+          post: post
+        })
+      })
+  }
+
+  handleDeletePreview = (event) => {
+    event.preventDefault()
+
+    this.post
+      .preview_image
+      .delete()
+      .then(() => {
+        this.post.preview_image = null
+
+        return this.post.save()
+      })
+      .then((post) => {
+        this.post = post
+
+        this.setState({
+          post: this.post
+        })
+      })
+  }
+
+  handleDeleteImage = (event, image) => {
+    event.preventDefault()
+
+    image
+      .delete()
+      .then(() => {
+        const index = this.post.images.indexOf(image)
+        this.post.images.splice(index, 1)
+
+        return this.post.save()
+      })
+      .then((post) => {
+        this.post = post
+
+        this.setState({
+          post: this.post
+        })
+      })
+  }
+
+  /**
+   *
+   */
+  componentDidMount() {
     if (this.props.match.params.slug !== 'new') {
       this.getPost();
     } else {
       this.post = {};
       this.setState({
         post:{
+          active: false,
           alias: '',
           text: '',
           title: ''
@@ -115,15 +199,47 @@ class PostDetailComponent extends Component {
    *
    */
   render() {
-    let flashMessage;
+    let flashMessage,
+        imageContainer,
+        imageList,
+        previewImage;
 
     if (this.state.error || this.state.success) {
       flashMessage =  <FlashMessageComponent message={this.state.message} type={this.state.error ? 'danger' : 'success'}/>
     }
 
-    if (this.state.post === null) {
+    if (this.state.post !== null) {
+      if (this.state.post.images) {
+          imageList = this.state.post.images.map((image) => {
+            return <ImageListItem image={ image } key={ image.id } handleDelete={ this.handleDeleteImage } />
+          })
+        }
+
+      if (this.state.post.preview_image) {
+        previewImage = <ImageListItem image={ this.state.post.preview_image } handleDelete={ this.handleDeletePreview } />
+      } else {
+        previewImage = <ImageUploader handleFile={ this.handleUploadPreview } />
+      }
+
+      if (this.props.match.params.slug !== 'new') {
+        imageContainer =
+            <div>
+              <div className="form-group">
+                <label>Vorschaubild</label>
+                <div className="img-list"> { previewImage }</div>
+              </div>
+              <div className="form-group">
+                <label>Bilder</label>
+                <div className="img-list">{ imageList }</div>
+                <ImageUploader handleFile={ this.handleUploadImage } />
+              </div>
+            </div>
+      }
+
+    } else {
       return <div></div>;
     }
+
 
     return (
       <div>
@@ -137,7 +253,7 @@ class PostDetailComponent extends Component {
           </div>
         </div>
        {flashMessage}
-        <h2>Blogbeitrag bearbeiten / neu anlegen</h2>
+        <h2>Eintrag bearbeiten / neu anlegen</h2>
        <form onSubmit={this.savePost}>
           <div className="form-group">
             <label>Title</label>
@@ -149,13 +265,20 @@ class PostDetailComponent extends Component {
           </div>
           <div className="form-group">
             <label>Text</label>
-            <textarea className="form-control" name="text" rows="3" defaultValue={this.state.post.text} onChange={this.handleChange} />
+            <textarea className="form-control" name="text" rows="10" defaultValue={this.state.post.text} onChange={this.handleChange} />
           </div>
-          <button type="submit" className="btn btn-default">Submit</button>
+          {imageContainer}
+          <div className="checkbox">
+            <label>
+              <input name="active" type="checkbox" defaultChecked={this.state.post.active} onChange={this.handleChange} />
+              veröffentlicht
+            </label>
+          </div>
+          <button type="submit" className="btn btn-default">Speichern</button>
         </form>
       </div>
     )
   }
 }
 
-export default PostDetailComponent;
+export default withRouter(PostDetailComponent);

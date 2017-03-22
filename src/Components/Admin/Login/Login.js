@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
+import { db } from 'baqend';
 
 import AuthenticationService from '../../../Shared/Authentication/Authentication';
 import FlashMessageComponent from '../../../Shared/FlashMessage/FlashMessage';
@@ -49,9 +50,11 @@ class LoginComponent extends Component {
   render() {
     let flashMessage;
 
-    if (this.state.redirectToReferrer && AuthenticationService.isAuthenticated) {
+    console.log(AuthenticationService.isAuthenticated);
+
+    if (this.state.redirectToReferrer || AuthenticationService.isAuthenticated) {
       return (
-        <Redirect to="/adminpanel/posts"/>
+        <Redirect to="/adminpanel"/>
       )
     }
 
@@ -62,16 +65,17 @@ class LoginComponent extends Component {
     return (
       <div className="container">
        {flashMessage}
+       <h2>Login</h2>
        <form onSubmit={this.login}>
           <div className="form-group">
-            <label>Username</label>
-            <input type="text" name="username" className="form-control" value={this.state.username} onChange={this.handleChange} placeholder="Username"/>
+            <label>Nutzername</label>
+            <input type="text" name="username" className="form-control" value={this.state.username} onChange={this.handleChange} placeholder="Nutzername"/>
           </div>
           <div className="form-group">
-            <label>Password</label>
-            <input type="password" name="password" className="form-control" value={this.state.password} onChange={this.handleChange} placeholder="Password"/>
+            <label>Passwort</label>
+            <input type="password" name="password" className="form-control" value={this.state.password} onChange={this.handleChange} placeholder="Passwort"/>
           </div>
-          <button type="submit" disabled={!this.state.username || !this.state.password} className="btn btn-default">Submit</button>
+          <button type="submit" disabled={!this.state.username || !this.state.password} className="btn btn-default">Einloggen</button>
         </form>
       </div>
     )

@@ -20,7 +20,7 @@ class PublicPostListComponent extends Component {
     });
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.getPosts();
   }
 
@@ -29,7 +29,7 @@ class PublicPostListComponent extends Component {
    */
   render() {
     return (
-      <div>
+      <div className="list">
         {this.state.posts}
       </div>
     );
