@@ -47,7 +47,7 @@ class PostListComponent extends Component {
       <div>
         <div className="row">
           <div className="col-md-12">
-            <Link to="/adminpanel">
+            <Link to="/admin">
               <button type="button" className="btn btn-default">
                 <span className="glyphicon glyphicon-chevron-left" aria-hidden="true"></span> Zurück
               </button>

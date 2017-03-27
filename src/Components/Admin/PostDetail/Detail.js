@@ -22,8 +22,6 @@ class PostDetailComponent extends Component {
 
     PostService.getProtectedPost(slug)
       .then(res => {
-        this.post = res;
-
         this.setState({
           post: res
         });
@@ -34,13 +32,11 @@ class PostDetailComponent extends Component {
   }
 
   savePost = (event) => {
-    Object.assign(this.post, this.state.form);
+    Object.assign(this.state.post, this.state.form);
 
     if (this.props.match.params.slug !== 'new'){
-      PostService.updatePost(this.post)
+      PostService.updatePost(this.state.post)
         .then(res => {
-          this.post = res;
-
           this.setState({
             post: res,
             success: true,
@@ -54,10 +50,9 @@ class PostDetailComponent extends Component {
           })
         });
     } else {
-      PostService.createPost(this.post)
+      PostService.createPost(this.state.post)
         .then(res => {
-          this.props.history.push('/adminpanel/posts/' + res.slug);
-          this.post = res;
+          this.props.history.push('/admin/posts/' + res.slug);
 
           this.setState({
             post: res,
@@ -87,91 +82,45 @@ class PostDetailComponent extends Component {
   }
 
   handleUploadImage = (event) => {
-    const file = new db.File({
-      data: event.target.files[0],
-      parent: '/www/images/posts/' + this.post.key
-    })
-
-    file
-      .upload()
-      .then((file) => {
-        //upload succeed successfully
-        this.post.images.push(file)
-
-        return this.post.save()
-      })
-      .then((post) => {
-        this.setState({
+    PostService.uploadImage(this.state.post, event.target.files[0]).then((post) => {
+      this.setState({
           post: post
         })
-      })
+    });
   }
 
   handleUploadPreview = (event) => {
-    const file = new db.File({
-      data: event.target.files[0],
-      parent: '/www/images/posts/' + this.post.key
-    })
-
-    file
-      .upload()
-      .then((file) => {
-        //upload succeed successfully
-        this.post.preview_image = file;
-        return this.post.save()
-      })
-      .then((post) => {
-        this.setState({
+     PostService.uploadPreviewImage(this.state.post, event.target.files[0]).then((post) => {
+      this.setState({
           post: post
-        })
-      })
+        });
+    });
   }
 
   handleDeletePreview = (event) => {
-    event.preventDefault()
+    event.preventDefault();
 
-    this.post
-      .preview_image
-      .delete()
-      .then(() => {
-        this.post.preview_image = null
-
-        return this.post.save()
-      })
-      .then((post) => {
-        this.post = post
-
-        this.setState({
-          post: this.post
-        })
-      })
+    PostService.deletePreview(this.state.post).then((post) => {
+       this.setState({
+          post: post
+        });
+    });
   }
 
   handleDeleteImage = (event, image) => {
-    event.preventDefault()
+    event.preventDefault();
 
-    image
-      .delete()
-      .then(() => {
-        const index = this.post.images.indexOf(image)
-        this.post.images.splice(index, 1)
-
-        return this.post.save()
-      })
-      .then((post) => {
-        this.post = post
-
-        this.setState({
-          post: this.post
-        })
-      })
+    PostService.deleteImage(this.state.post, image).then((post) => {
+      this.setState({
+        post: post
+      });
+    });
   }
 
   componentDidMount() {
     if (this.props.match.params.slug !== 'new') {
       this.getPost();
     } else {
-      this.post = {};
       this.setState({
         post:{
           active: false,
@@ -230,7 +179,7 @@ class PostDetailComponent extends Component {
       <div>
         <div className="row">
           <div className="col-md-12">
-            <Link to="/adminpanel/posts">
+            <Link to="/admin/posts">
               <button type="button" className="btn btn-default">
                 <span className="glyphicon glyphicon-chevron-left" aria-hidden="true"></span> Zurück
               </button>

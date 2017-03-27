@@ -19,7 +19,7 @@ class BaseComponent extends Component {
 
     }, () => {
       this.setState({isAuthenticated: false});
-      this.props.history.push('/adminpanel/login');
+      this.props.history.push('/admin/login');
     });
   }
 
@@ -33,7 +33,7 @@ class BaseComponent extends Component {
 
   signOut = () => {
       AuthenticationService.signout().then(() => {
-        this.props.history.push('/adminpanel/login');
+        this.props.history.push('/admin/login');
       });
   }
 
@@ -49,7 +49,7 @@ class BaseComponent extends Component {
         <div className="navbar navbar-default">
           <div className="container">
               <div className="navbar-header navbar-brand">
-                <Link to="/adminpanel">
+                <Link to="/admin">
                   <img width="50px" alt="logo" src={require('../../../../assets/images/logo.png')}/>
                 </Link></div>
               <div className="nav navbar-nav navbar-right">
@@ -60,10 +60,10 @@ class BaseComponent extends Component {
           </div>
         </div>
           <div className="container">
-            <Route path="/adminpanel" exact component={DashboardComponent}></Route>
-            <Route path="/adminpanel/login" exact component={LoginComponent}></Route>
-            <Route path="/adminpanel/posts" exact component={PostListComponent}></Route>
-            <Route path="/adminpanel/posts/:slug" component={PostDetailComponent}></Route>
+            <Route path="/admin" exact component={DashboardComponent}></Route>
+            <Route path="/admin/login" exact component={LoginComponent}></Route>
+            <Route path="/admin/posts" exact component={PostListComponent}></Route>
+            <Route path="/admin/posts/:slug" component={PostDetailComponent}></Route>
           </div>
       </div>
     );

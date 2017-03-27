@@ -23,7 +23,7 @@ class PublicBaseComponent extends Component {
         </div>
         <div className="social-wrapper">
           <ul>
-            <li>follow me</li>
+            <li>contact me</li>
             <li>-</li>
             <li><a href="https://www.facebook.com/moni.wss" target="_blank">facebook</a></li>
             <li><a href="https://www.instagram.com/moni_weiss/" target="_blank">instagram</a></li>

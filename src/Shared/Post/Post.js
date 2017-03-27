@@ -1,7 +1,7 @@
 import { db } from 'baqend';
 
 const PostService = {
-
+  imagePath: '/www/images/posts/',
   posts: [],
 
   getPosts: function() {
@@ -79,6 +79,59 @@ const PostService = {
         return this.posts;
       });
     });
+  },
+
+  uploadImage: function(post, data) {
+    const file = new db.File({
+      data: data,
+      parent: this.imagePath + post.key
+    })
+
+    return file
+      .upload()
+      .then((file) => {
+        //upload succeed successfully
+        post.images.push(file)
+
+        return post.save()
+      });
+  },
+
+  uploadPreviewImage: function(post, data) {
+    const file = new db.File({
+      data: data,
+      parent: this.imagePath + post.key
+    })
+
+    return file
+      .upload()
+      .then((file) => {
+        //upload succeed successfully
+         post.preview_image = file;
+
+        return post.save()
+      });
+  },
+
+  deletePreview: function(post) {
+    return post
+      .preview_image
+      .delete()
+      .then(() => {
+        post.preview_image = null
+        return post.save()
+      });
+  },
+
+  deleteImage: function(post, image) {
+    return image
+      .delete()
+      .then(() => {
+        const index = post.images.indexOf(image)
+        post.images.splice(index, 1)
+
+        return post.save()
+      });
   }
 };
 

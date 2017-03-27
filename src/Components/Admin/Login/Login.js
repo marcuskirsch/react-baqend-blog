@@ -32,7 +32,7 @@ class LoginComponent extends Component {
 
     AuthenticationService.authenticate(params)
       .then(() => {
-        this.props.history.push('/adminpanel');
+        this.props.history.push('/admin');
       })
       .catch((err) => {
         this.setState({

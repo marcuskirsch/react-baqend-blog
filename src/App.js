@@ -18,7 +18,7 @@ class App extends Component {
       <Router>
           <div>
             <Switch>
-              <Route path="/adminpanel" component={BaseComponent} />
+              <Route path="/admin" component={BaseComponent} />
               <Route path="/" component={PublicBaseComponent}/>
             </Switch>
           </div>
