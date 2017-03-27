@@ -8,9 +8,6 @@ class PublicPostListItemComponent extends Component {
     return this.props.post.text.substring(0, 400) + '...';
   }
 
-  /**
-   *
-   */
   render() {
     let image;
 
@@ -27,7 +24,7 @@ class PublicPostListItemComponent extends Component {
         </Link>
         <div className="text-wrapper">
           <h2>{this.props.post.title}</h2>
-          <div className="item-meta">inspiration trending <span>{moment(this.props.post.createdAt).format('DD. MMMM  YYYY')}</span></div>
+          <div className="item-meta">{moment(this.props.post.createdAt).format('dd. DD. MMMM  YYYY')}</div>
           <p>{this.getShortText()}</p>
           <Link to={this.props.post.alias}>
             mehr...

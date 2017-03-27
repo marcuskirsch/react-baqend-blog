@@ -7,9 +7,6 @@ class PublicPostDetailComponent extends Component {
     post: null
   };
 
-  /**
-   *
-   */
   getPost = () => {
     let id = this.props.match.params.id;
 
@@ -24,9 +21,7 @@ class PublicPostDetailComponent extends Component {
   componentDidMount(){
     this.getPost();
   }
-  /**
-   *
-   */
+
   render() {
     let imageList;
 
@@ -35,7 +30,7 @@ class PublicPostDetailComponent extends Component {
     }
 
     imageList = this.state.post.images.map((image, index) => {
-      return <img className="img-thumbnail" key={index} src={image.url}/>;
+      return <img alt={this.state.post.title} className="img-thumbnail" key={index} src={image.url}/>;
     });
 
     return (
@@ -46,7 +41,7 @@ class PublicPostDetailComponent extends Component {
           </div>
           <div className="text-wrapper">
             <h2>{this.state.post.title}</h2>
-            <div className="item-meta">inspiration trending <span>{moment(this.state.post.createdAt).format('DD. MMMM  YYYY')}</span></div>
+            <div className="item-meta">{moment(this.state.post.createdAt).format('DD. MMMM  YYYY')}</div>
             <p>{this.state.post.text}</p>
           </div>
           <div className="gallery">

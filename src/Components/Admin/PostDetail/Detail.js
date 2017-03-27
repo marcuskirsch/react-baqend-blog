@@ -17,9 +17,6 @@ class PostDetailComponent extends Component {
   };
   post = {};
 
-  /**
-   *
-   */
   getPost = () => {
     let slug = this.props.match.params.slug;
 
@@ -36,9 +33,6 @@ class PostDetailComponent extends Component {
       });
   }
 
-  /**
-   *
-   */
   savePost = (event) => {
     Object.assign(this.post, this.state.form);
 
@@ -82,9 +76,6 @@ class PostDetailComponent extends Component {
       event.preventDefault();
   }
 
-  /**
-   *
-   */
   handleChange = (event) => {
     Object.assign(this.state.form, {
       [event.target.name]: event.target.type === 'checkbox' ? event.target.checked : event.target.value
@@ -176,9 +167,6 @@ class PostDetailComponent extends Component {
       })
   }
 
-  /**
-   *
-   */
   componentDidMount() {
     if (this.props.match.params.slug !== 'new') {
       this.getPost();
@@ -195,9 +183,6 @@ class PostDetailComponent extends Component {
     }
   }
 
-  /**
-   *
-   */
   render() {
     let flashMessage,
         imageContainer,

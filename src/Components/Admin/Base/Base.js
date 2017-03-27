@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Route, Redirect, Link, withRouter } from 'react-router-dom';
+import { Route, Link, withRouter } from 'react-router-dom';
 
 import PostDetailComponent from '../PostDetail/Detail';
 import PostListComponent from '../PostList/List';
@@ -9,21 +9,39 @@ import DashboardComponent from '../Dashboard/Dashboard';
 import AuthenticationService from '../../../Shared/Authentication/Authentication';
 
 class BaseComponent extends Component {
-  render() {
-    let route;
+  state = {
+    isAuthenticated: false
+  };
 
-    if (AuthenticationService.isAuthenticated) {
-      route = (
-        <div className="container">
-          <Route path="/adminpanel" exact component={DashboardComponent}></Route>
-          <Route path="/adminpanel/posts" exact component={PostListComponent}></Route>
-          <Route path="/adminpanel/posts/:slug" component={PostDetailComponent}></Route>
-        </div>
-      );
-    } else {
-      route = (<Redirect to={{
-        pathname: '/adminpanel/login'
-      }}/>)
+  isAuthenticated = () => {
+    AuthenticationService.isAuthenticated().then(() => {
+      this.setState({isAuthenticated: true});
+
+    }, () => {
+      this.setState({isAuthenticated: false});
+      this.props.history.push('/adminpanel/login');
+    });
+  }
+
+  componentDidMount() {
+    this.isAuthenticated();
+
+    AuthenticationService.subject.subscribe((params) => {
+      this.setState({isAuthenticated: params});
+    });
+  }
+
+  signOut = () => {
+      AuthenticationService.signout().then(() => {
+        this.props.history.push('/adminpanel/login');
+      });
+  }
+
+  render() {
+    let authButton;
+
+    if (this.state.isAuthenticated) {
+      authButton = (<AuthButtonWithRouter signOut={this.signOut}/>);
     }
 
     return (
@@ -32,28 +50,36 @@ class BaseComponent extends Component {
           <div className="container">
               <div className="navbar-header navbar-brand">
                 <Link to="/adminpanel">
-                  <img width="50px" src={require('../../../../assets/images/logo.png')}/>
+                  <img width="50px" alt="logo" src={require('../../../../assets/images/logo.png')}/>
                 </Link></div>
               <div className="nav navbar-nav navbar-right">
                 <div className="navbar-form navbar-left">
-                  <AuthButton/>
+                    {authButton}
                 </div>
               </div>
           </div>
         </div>
-          <Route path="/adminpanel/login" component={LoginComponent}/>
-          {route}
+          <div className="container">
+            <Route path="/adminpanel" exact component={DashboardComponent}></Route>
+            <Route path="/adminpanel/login" exact component={LoginComponent}></Route>
+            <Route path="/adminpanel/posts" exact component={PostListComponent}></Route>
+            <Route path="/adminpanel/posts/:slug" component={PostDetailComponent}></Route>
+          </div>
       </div>
     );
   }
 }
 
-const AuthButton = withRouter(({ history }) => (
-  AuthenticationService.isAuthenticated ? (
-    <button className="btn btn-default" onClick={(event) => {
-      AuthenticationService.signout().then(() => history.push('/adminpanel/login'));
-      }}>Sign out</button>
-  ) : <span/>
-))
+class AuthButton extends Component {
+  signOut = () => {
+    this.props.signOut();
+  }
 
-export default BaseComponent;
+  render() {
+    return (<button className="btn btn-default" onClick={this.signOut}>Sign out</button>);
+  }
+}
+
+const AuthButtonWithRouter = withRouter(AuthButton);
+
+export default withRouter(BaseComponent);

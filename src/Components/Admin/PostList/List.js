@@ -12,9 +12,6 @@ class PostListComponent extends Component {
     posts: []
   };
 
-  /**
-   *
-   */
   getPosts() {
     PostService.getProtectedPosts().then(res => {
       let posts = res.map((post, index) => {
@@ -25,9 +22,6 @@ class PostListComponent extends Component {
     });
   }
 
-  /**
-   *
-   */
   deletePost = (post) => {
     PostService.deletePost(post)
       .then(res => {
@@ -38,16 +32,10 @@ class PostListComponent extends Component {
       });
   }
 
-  /**
-   *
-   */
   componentDidMount() {
     this.getPosts();
   }
 
-  /**
-   *
-   */
   render() {
     let flashMessage;
 

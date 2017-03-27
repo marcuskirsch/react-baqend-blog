@@ -7,9 +7,6 @@ class PublicPostListComponent extends Component {
     posts: []
   }
 
-  /**
-   *
-   */
   getPosts() {
     PostService.getPosts().then(res => {
       let posts = res.map((post, index) => {
@@ -24,9 +21,6 @@ class PublicPostListComponent extends Component {
     this.getPosts();
   }
 
-  /**
-   *
-   */
   render() {
     return (
       <div className="list">

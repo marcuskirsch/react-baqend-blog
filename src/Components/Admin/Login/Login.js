@@ -1,30 +1,29 @@
 import React, { Component } from 'react';
-import { Redirect } from 'react-router-dom';
-import { db } from 'baqend';
+import { withRouter } from 'react-router-dom';
 
 import AuthenticationService from '../../../Shared/Authentication/Authentication';
 import FlashMessageComponent from '../../../Shared/FlashMessage/FlashMessage';
 
 class LoginComponent extends Component {
   state = {
-    redirectToReferrer: false,
     username: '',
     password: '',
-    error: false
+    error: false,
+    isAuthenticated: false
   };
 
-  /**
-   *
-   */
   handleChange = (event) => {
     this.setState({
       [event.target.name]: event.target.value
     });
   }
 
-  /**
-   *
-   */
+  isAuthenticated = () => {
+    AuthenticationService.isAuthenticated().then(() => {
+       this.props.history.push('/adminpanel');
+    });
+  }
+
   login = (event) => {
     let params = {
       username: this.state.username,
@@ -33,7 +32,7 @@ class LoginComponent extends Component {
 
     AuthenticationService.authenticate(params)
       .then(() => {
-        this.setState({ redirectToReferrer: true })
+        this.props.history.push('/adminpanel');
       })
       .catch((err) => {
         this.setState({
@@ -44,19 +43,12 @@ class LoginComponent extends Component {
     event.preventDefault();
   }
 
-  /**
-   *
-   */
+  componentDidMount() {
+    this.isAuthenticated();
+  }
+
   render() {
     let flashMessage;
-
-    console.log(AuthenticationService.isAuthenticated);
-
-    if (this.state.redirectToReferrer || AuthenticationService.isAuthenticated) {
-      return (
-        <Redirect to="/adminpanel"/>
-      )
-    }
 
     if (this.state.error) {
       flashMessage =  <FlashMessageComponent message={this.state.error.message} type="danger"/>
@@ -82,4 +74,4 @@ class LoginComponent extends Component {
   }
 }
 
-export default LoginComponent;
+export default withRouter(LoginComponent);

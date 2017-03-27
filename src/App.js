@@ -3,7 +3,6 @@ import {BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { db } from 'baqend';
 import moment from 'moment';
 
-
 import PublicBaseComponent from './Components/Public/Base/Base';
 import BaseComponent from './Components/Admin/Base/Base';
 

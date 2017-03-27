@@ -3,9 +3,6 @@ import { Link } from 'react-router-dom';
 
 class DashboardComponent extends Component {
 
-  /**
-   *
-   */
   render() {
     return (
        <div>

@@ -8,6 +8,7 @@ const PostService = {
     return db.ready(() => {
       return db.Post.find()
         .equal('active', true)
+        .descending('createdAt')
         .resultList()
         .then( result => {
           this.posts = result;
@@ -22,6 +23,7 @@ const PostService = {
     } else {
       return db.ready(() => {
         return db.Post.find()
+          .descending('createdAt')
           .resultList()
           .then( result => {
             this.posts = result;
