@@ -1,29 +1,29 @@
 import React, { Component } from 'react';
-import { Redirect } from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
 
 import AuthenticationService from '../../../Shared/Authentication/Authentication';
 import FlashMessageComponent from '../../../Shared/FlashMessage/FlashMessage';
 
 class LoginComponent extends Component {
   state = {
-    redirectToReferrer: false,
     username: '',
     password: '',
-    error: false
+    error: false,
+    isAuthenticated: false
   };
 
-  /**
-   *
-   */
   handleChange = (event) => {
     this.setState({
       [event.target.name]: event.target.value
     });
   }
 
-  /**
-   *
-   */
+  isAuthenticated = () => {
+    AuthenticationService.isAuthenticated().then(() => {
+       this.props.history.push('/adminpanel');
+    });
+  }
+
   login = (event) => {
     let params = {
       username: this.state.username,
@@ -32,7 +32,7 @@ class LoginComponent extends Component {
 
     AuthenticationService.authenticate(params)
       .then(() => {
-        this.setState({ redirectToReferrer: true })
+        this.props.history.push('/admin');
       })
       .catch((err) => {
         this.setState({
@@ -43,17 +43,12 @@ class LoginComponent extends Component {
     event.preventDefault();
   }
 
-  /**
-   *
-   */
+  componentDidMount() {
+    this.isAuthenticated();
+  }
+
   render() {
     let flashMessage;
-
-    if (this.state.redirectToReferrer && AuthenticationService.isAuthenticated) {
-      return (
-        <Redirect to="/adminpanel/posts"/>
-      )
-    }
 
     if (this.state.error) {
       flashMessage =  <FlashMessageComponent message={this.state.error.message} type="danger"/>
@@ -62,20 +57,21 @@ class LoginComponent extends Component {
     return (
       <div className="container">
        {flashMessage}
+       <h2>Login</h2>
        <form onSubmit={this.login}>
           <div className="form-group">
-            <label>Username</label>
-            <input type="text" name="username" className="form-control" value={this.state.username} onChange={this.handleChange} placeholder="Username"/>
+            <label>Nutzername</label>
+            <input type="text" name="username" className="form-control" value={this.state.username} onChange={this.handleChange} placeholder="Nutzername"/>
           </div>
           <div className="form-group">
-            <label>Password</label>
-            <input type="password" name="password" className="form-control" value={this.state.password} onChange={this.handleChange} placeholder="Password"/>
+            <label>Passwort</label>
+            <input type="password" name="password" className="form-control" value={this.state.password} onChange={this.handleChange} placeholder="Passwort"/>
           </div>
-          <button type="submit" disabled={!this.state.username || !this.state.password} className="btn btn-default">Submit</button>
+          <button type="submit" disabled={!this.state.username || !this.state.password} className="btn btn-default">Einloggen</button>
         </form>
       </div>
     )
   }
 }
 
-export default LoginComponent;
+export default withRouter(LoginComponent);

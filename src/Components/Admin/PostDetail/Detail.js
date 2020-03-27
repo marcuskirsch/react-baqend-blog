@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
+import { db } from 'baqend';
 
+import ImageListItem from './ImageListItem';
+import ImageUploader from './ImageUploader';
 import PostService from '../../../Shared/Post/Post';
 import FlashMessageComponent from '../../../Shared/FlashMessage/FlashMessage';
 
@@ -12,32 +15,13 @@ class PostDetailComponent extends Component {
     success: false,
     message: ''
   };
+  post = {};
 
-  /**
-   *
-   */
-  handleChange = (event) => {
-    let changes = {};
-
-    Object.assign(this.state.form, {
-      [event.target.name]: event.target.value
-    });
-
-    this.setState({
-      form: this.state.form
-    });
-  }
-
-  /**
-   *
-   */
   getPost = () => {
     let slug = this.props.match.params.slug;
 
     PostService.getProtectedPost(slug)
       .then(res => {
-        this.post = res;
-
         this.setState({
           post: res
         });
@@ -47,17 +31,12 @@ class PostDetailComponent extends Component {
       });
   }
 
-  /**
-   *
-   */
   savePost = (event) => {
-    Object.assign(this.post, this.state.form);
+    Object.assign(this.state.post, this.state.form);
 
     if (this.props.match.params.slug !== 'new'){
-      PostService.updatePost(this.post)
+      PostService.updatePost(this.state.post)
         .then(res => {
-          this.post = res;
-
           this.setState({
             post: res,
             success: true,
@@ -71,15 +50,14 @@ class PostDetailComponent extends Component {
           })
         });
     } else {
-      console.log(this.post);
-      PostService.createPost(this.post)
+      PostService.createPost(this.state.post)
         .then(res => {
-          this.post = res;
+          this.props.history.push('/admin/posts/' + res.slug);
 
           this.setState({
             post: res,
             success: true,
-            message: 'create sucess'
+            message: 'update sucess'
           })
         })
         .catch(err => {
@@ -93,16 +71,59 @@ class PostDetailComponent extends Component {
       event.preventDefault();
   }
 
-  /**
-   *
-   */
-  componentWillMount() {
+  handleChange = (event) => {
+    Object.assign(this.state.form, {
+      [event.target.name]: event.target.type === 'checkbox' ? event.target.checked : event.target.value
+    });
+
+    this.setState({
+      form: this.state.form
+    });
+  }
+
+  handleUploadImage = (event) => {
+    PostService.uploadImage(this.state.post, event.target.files[0]).then((post) => {
+      this.setState({
+          post: post
+        })
+    });
+  }
+
+  handleUploadPreview = (event) => {
+     PostService.uploadPreviewImage(this.state.post, event.target.files[0]).then((post) => {
+      this.setState({
+          post: post
+        });
+    });
+  }
+
+  handleDeletePreview = (event) => {
+    event.preventDefault();
+
+    PostService.deletePreview(this.state.post).then((post) => {
+       this.setState({
+          post: post
+        });
+    });
+  }
+
+  handleDeleteImage = (event, image) => {
+    event.preventDefault();
+
+    PostService.deleteImage(this.state.post, image).then((post) => {
+      this.setState({
+        post: post
+      });
+    });
+  }
+
+  componentDidMount() {
     if (this.props.match.params.slug !== 'new') {
       this.getPost();
     } else {
-      this.post = {};
       this.setState({
         post:{
+          active: false,
           alias: '',
           text: '',
           title: ''
@@ -111,25 +132,54 @@ class PostDetailComponent extends Component {
     }
   }
 
-  /**
-   *
-   */
   render() {
-    let flashMessage;
+    let flashMessage,
+        imageContainer,
+        imageList,
+        previewImage;
 
     if (this.state.error || this.state.success) {
       flashMessage =  <FlashMessageComponent message={this.state.message} type={this.state.error ? 'danger' : 'success'}/>
     }
 
-    if (this.state.post === null) {
+    if (this.state.post !== null) {
+      if (this.state.post.images) {
+          imageList = this.state.post.images.map((image) => {
+            return <ImageListItem image={ image } key={ image.id } handleDelete={ this.handleDeleteImage } />
+          })
+        }
+
+      if (this.state.post.preview_image) {
+        previewImage = <ImageListItem image={ this.state.post.preview_image } handleDelete={ this.handleDeletePreview } />
+      } else {
+        previewImage = <ImageUploader handleFile={ this.handleUploadPreview } />
+      }
+
+      if (this.props.match.params.slug !== 'new') {
+        imageContainer =
+            <div>
+              <div className="form-group">
+                <label>Vorschaubild</label>
+                <div className="img-list"> { previewImage }</div>
+              </div>
+              <div className="form-group">
+                <label>Bilder</label>
+                <div className="img-list">{ imageList }</div>
+                <ImageUploader handleFile={ this.handleUploadImage } />
+              </div>
+            </div>
+      }
+
+    } else {
       return <div></div>;
     }
+
 
     return (
       <div>
         <div className="row">
           <div className="col-md-12">
-            <Link to="/adminpanel/posts">
+            <Link to="/admin/posts">
               <button type="button" className="btn btn-default">
                 <span className="glyphicon glyphicon-chevron-left" aria-hidden="true"></span> Zurück
               </button>
@@ -137,7 +187,7 @@ class PostDetailComponent extends Component {
           </div>
         </div>
        {flashMessage}
-        <h2>Blogbeitrag bearbeiten / neu anlegen</h2>
+        <h2>Eintrag bearbeiten / neu anlegen</h2>
        <form onSubmit={this.savePost}>
           <div className="form-group">
             <label>Title</label>
@@ -149,13 +199,20 @@ class PostDetailComponent extends Component {
           </div>
           <div className="form-group">
             <label>Text</label>
-            <textarea className="form-control" name="text" rows="3" defaultValue={this.state.post.text} onChange={this.handleChange} />
+            <textarea className="form-control" name="text" rows="10" defaultValue={this.state.post.text} onChange={this.handleChange} />
           </div>
-          <button type="submit" className="btn btn-default">Submit</button>
+          {imageContainer}
+          <div className="checkbox">
+            <label>
+              <input name="active" type="checkbox" defaultChecked={this.state.post.active} onChange={this.handleChange} />
+              veröffentlicht
+            </label>
+          </div>
+          <button type="submit" className="btn btn-default">Speichern</button>
         </form>
       </div>
     )
   }
 }
 
-export default PostDetailComponent;
+export default withRouter(PostDetailComponent);

@@ -1,12 +1,56 @@
-@import url('https://fonts.googleapis.com/css?family=Varela+Round');
+@import url('https://fonts.googleapis.com/css?family=Poppins');
 @import './variables';
 @import './../../node_modules/bootstrap-sass/assets/stylesheets/_bootstrap.scss';
 
 body {
   margin: 0;
-  padding: 0;
-  font-family: sans-serif;
+  padding: $padding-large-horizontal;
+  font-family: 'Poppins', sans-serif;
 }
+
+p {
+  font-weight: light;
+}
+
+// Grid
+//---------------------------------------
+.container.has-fixed-header {
+  padding-top: $padding-large-vertical * 10;
+}
+
+.navbar-default {
+  border-bottom: 1px solid $gray-lighter;
+
+  .navbar-brand {
+    margin: 0 0 $padding-large-vertical * 2;
+    padding: 0;
+  }
+}
+
+
+// Fonts
+//---------------------------------------
+h1,
+h2,
+h3 {
+  font-weight: bold;
+}
+
+h1 {
+  font-size: $font-size-large * 2;
+  margin: 0;
+}
+
+// Links
+//---------------------------------------
+a {
+  color: $gray;
+
+  &:hover {
+    color: $gray-light;
+  }
+}
+
 
 // Buttons
 //---------------------------------------
@@ -14,15 +58,167 @@ body {
   margin: 0 $padding-base-vertical;
 }
 
+
+// Images
+//---------------------------------------
+img.img-thumbnail {
+  height: 150px;
+  object-fit: cover;
+  margin: $padding-base-vertical * 2 $padding-base-vertical * 2 $padding-base-vertical * 2 0;
+  width: 150px;
+}
+
+img.img-large {
+  height: auto;
+  object-fit: cover;
+  max-height: 500px;
+  max-width: 100%;
+  width: 960px;
+}
+
+.img-list {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.item-img-wrapper {
+  position: relative;
+
+  .glyphicon {
+    top: $padding-base-vertical * 4;
+    cursor: pointer;
+    position: absolute;
+    right: $padding-base-vertical * 4;
+
+    &:hover {
+      color: $gray-light;
+    }
+  }
+}
+
+.gallery {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 auto;
+  width: 960px;
+
+  img {
+    object-fit: cover;
+  }
+}
+
+
 // Lists
 //---------------------------------------
-
-.list {
-
-}
 
 .list-item {
   border-bottom: 1px solid $gray-lighter;
   padding: $padding-large-horizontal 0;
 }
 
+.list {
+  a {
+    &:hover {
+      .image-wrapper::before {
+        background-color: rgba(255, 255, 255, 0.5);
+        bottom: $padding-large-horizontal;
+        left: $padding-large-horizontal;
+        right: $padding-large-horizontal;
+        top: $padding-large-horizontal;
+      }
+
+      .image-wrapper::after {
+        color: $dark;
+        content: '\e234';
+        font-family: 'Glyphicons Halflings';
+        font-size: $font-size-large * 1.5;
+        left: 50%;
+        margin-left: -15px;
+        position: absolute;
+        top: 50%;
+        z-index: 1000;
+      }
+    }
+  }
+}
+
+// Entry
+//---------------------------------------
+.entry {
+  border: 0;
+  padding-bottom: $padding-large-horizontal * 6;
+
+  .image-wrapper {
+    height: auto;
+    margin: 0 auto $padding-large-horizontal;
+    max-width: 100%;
+    position: relative;
+    width: 960px;
+
+    &::before {
+      bottom: $padding-large-horizontal * 2;
+      content: '';
+      left: $padding-large-horizontal * 2;
+      right: -$padding-large-horizontal;
+      position: absolute;
+      top: -$padding-large-horizontal;
+      transition: all ease .5s;
+    }
+  }
+
+  .text-wrapper {
+    padding: $padding-large-horizontal 10vw;
+  }
+
+  .item-meta {
+    font-size: $font-size-small;
+    text-transform: uppercase;
+    padding: 0 0 $padding-base-horizontal * 2;
+  }
+
+  @media screen and (max-width: 990px) {
+    .text-wrapper {
+      padding: $padding-large-horizontal;
+    }
+  }
+}
+
+// Social
+//---------------------------------------
+.social-wrapper {
+  bottom: 150px;
+  left: -100px;
+  position: fixed;
+  transform: rotate(-90deg) translateX(0);
+  z-index: 999;
+
+  ul {
+    padding: 0;
+  }
+
+  li {
+    display: inline-block;
+    font-size: $font-size-small;
+    list-style-type: none;
+    padding: 0 $padding-base-vertical * 1.5;
+
+    &:hover:not(:first-child) {
+      cursor: pointer;
+    }
+
+    &:first-child {
+      background-color: $dark;
+      color: $light;
+    }
+
+    &:nth-child(2){
+      padding-right: 0;
+    }
+  }
+}
+
+@media screen and (max-width: 760px) {
+  .social-wrapper {
+    display: none;
+  }
+}

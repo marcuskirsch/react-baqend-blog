@@ -12,11 +12,8 @@ class PostListComponent extends Component {
     posts: []
   };
 
-  /**
-   *
-   */
   getPosts() {
-    PostService.getPosts().then(res => {
+    PostService.getProtectedPosts().then(res => {
       let posts = res.map((post, index) => {
         return <PostListItemComponent key={index} post={post} deletePost={this.deletePost}></PostListItemComponent>;
       });
@@ -25,35 +22,20 @@ class PostListComponent extends Component {
     });
   }
 
-  /**
-   *
-   */
   deletePost = (post) => {
-    const index = this.state.posts.indexOf(post);
-
     PostService.deletePost(post)
       .then(res => {
-      this.state.posts.splice(index, 1)
-
-        this.setState({
-          posts: this.state.posts
-        });
+        return this.getPosts();
       })
       .catch(err => {
         this.setState({error: err});
       });
   }
 
-  /**
-   *
-   */
-  componentWillMount() {
+  componentDidMount() {
     this.getPosts();
   }
 
-  /**
-   *
-   */
   render() {
     let flashMessage;
 
@@ -65,7 +47,7 @@ class PostListComponent extends Component {
       <div>
         <div className="row">
           <div className="col-md-12">
-            <Link to="/adminpanel">
+            <Link to="/admin">
               <button type="button" className="btn btn-default">
                 <span className="glyphicon glyphicon-chevron-left" aria-hidden="true"></span> Zurück
               </button>

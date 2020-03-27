@@ -7,9 +7,6 @@ class PublicPostListComponent extends Component {
     posts: []
   }
 
-  /**
-   *
-   */
   getPosts() {
     PostService.getPosts().then(res => {
       let posts = res.map((post, index) => {
@@ -20,16 +17,13 @@ class PublicPostListComponent extends Component {
     });
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.getPosts();
   }
 
-  /**
-   *
-   */
   render() {
     return (
-      <div>
+      <div className="list">
         {this.state.posts}
       </div>
     );
